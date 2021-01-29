@@ -1,4 +1,32 @@
 
+const oreCopper = extendContent(Item,"oreCopper",{});
+oreCopper.color = Color.valueOf("FFA500");
+
+const oreLead = extendContent(Item,"oreLead",{})
+oreLead.color = Color.valueOf("9370DB");
+
+const oreTitanium = extendContent(Item,"oreTitanium",{});
+oreTitanium.color = Color.valueOf("4169E1");
+oreTitanium.hardness = 3;
+
+const oreThorium = extendContent(Item,"oreThorium",{});
+oreThorium.color = Color.valueOf("EE82EE")
+oreThorium.hardness = 4;
+
+const point = extendContent(Item,"point",{});
+
+const copperGear = extendContent(Item,"copperGear",{});
+copperGear.description = "It is used to turret and conveyor widely.";
+
+const leadedBrass = extendContent(Item,"leadedBrass",{});
+leadedBrass.description = "It is hard."
+
+const structuralTitaniumAlloy = extendContent(Item,"structuralTitaniumAlloy",{});
+structuralTitaniumAlloy.description = "very hard."
+
+const highStrengthAlloy = extendContent(Item,"highStrengthAlloy",{});
+highStrengthAlloy.description = "error"
+
 require("crafter");
 
 Events.on(EventType.ClientLoadEvent, cons(e => {

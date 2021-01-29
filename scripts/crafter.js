@@ -625,7 +625,6 @@ exports.defineMultiCrafter = function (originConfig) {
     return block;
 }
 
-/*
 exports.defineMultiCrafter({
     name: 'basicFurnace',
     itemCapacity: 30,
@@ -667,12 +666,3 @@ exports.defineMultiCrafter({
     	},
     ]
 });
-*/
-
-const pollution = new Array()
-
-for(i=0;i<255;i++){
-	pollution[i] = 0
-}
-
-const pollutionListenr = extendContent(Block,"")
