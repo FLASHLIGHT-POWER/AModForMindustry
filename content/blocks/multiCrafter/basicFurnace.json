@@ -1,0 +1,11 @@
+{
+    "name":"basicFurnace",
+    "description":"This block can initially smelt metal.",
+	"size":2,
+	"requirements":[
+		"oreCopper/30",
+		"oreLead/40"
+	]
+	"category":"crafting",
+	"research":"craftLicenseLV1"
+}

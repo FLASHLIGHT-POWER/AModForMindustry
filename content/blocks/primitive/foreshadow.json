@@ -1,0 +1,10 @@
+{
+	"requirements":[
+		{"item":"cooperGear","amount":300},
+		{"item":"highStrengthAlloy","amount":300},
+		{"item":"structuralTitaniumAlloy","amount":400},
+		{"item":"metaglass","amount":600},
+		{"item":"plastanium","amount":200},
+		{"item":"surge-alloy","amount":300}
+	]
+}

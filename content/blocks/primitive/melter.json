@@ -1,0 +1,6 @@
+{
+	"requirement":[
+		"graphite/30",
+		"leadBrass/30"
+	]
+}

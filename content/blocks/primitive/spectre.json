@@ -1,0 +1,9 @@
+{
+	"requirements":[
+		{"item":"leadedBrass","amount":500},
+		{"item":"thorium","amount":500},
+		{"item":"graphite","amount":100},
+		{"item":"plastanium","amount":300},
+		{"item":"surge-alloy","amount":200}
+	]
+}

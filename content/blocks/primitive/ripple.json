@@ -1,0 +1,7 @@
+{
+	"requirements":[
+		{"item":"cooperGear","amount":40},
+		{"item":"structuralTitaniumAlloy","amount":90},
+		{"item":"silicon","amount":40}
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"powerUse":1,
+	"requirements":[
+		"silicon/80",
+		"metaglass/70",
+		"titanium/90",
+		"graphite/30"
+	]
+}

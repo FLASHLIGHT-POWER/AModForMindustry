@@ -1,0 +1,12 @@
+{
+	"type": "Wall",
+	"name": "recipeList",
+	"description": "For some reason can not view the factory formula, please look here. [red] \n basicFurnace: \n 4oreCopper+1coal↣ 2copper+2scrap \n 4oreLead+1coal↣ 2lead+2scrap \n advancedRefinery: \n 3oreTitanium+1pyratite↣1titanium+2scrap \n 4oreThorium+2pyratite↣1thorium+3scrap",
+	"size": 1,
+	"health":-1,
+	"category": "defense",
+	"research":"duo",
+	"requirements": [
+		"point/0"
+	]
+}

@@ -1,0 +1,9 @@
+{
+	"reloadTime":25,
+	"requirements":[
+		{"item":"cooper","amount":300},
+		{"item":"thorium","amount":200},
+		{"item":"graphite","amount":400},
+		{"item":"metaglass","amount":200}
+	]
+}

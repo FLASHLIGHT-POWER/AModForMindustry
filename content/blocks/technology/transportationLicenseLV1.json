@@ -1,0 +1,13 @@
+{
+	"type": "Wall",
+	"name": "transportationLicenseLV1",
+	"description": "Gives you access to the primary conveyor.",
+	"size": 1,
+	"health":-1,
+	"alwaysUnlocked":true,
+	"category": "defense",
+	"research":"duo",
+	"requirements": [
+		"point/0"
+	]
+}

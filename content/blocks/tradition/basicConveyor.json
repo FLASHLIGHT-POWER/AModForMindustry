@@ -1,0 +1,12 @@
+{
+	"type": "Conveyor",
+	"name": "baiscConveror",
+	"description": "For the beginning of the game",
+	"requirements": [
+		"copper/1"
+	],
+	"category": "distribution",
+	"alwaysUnlocked":true,
+	"speed": 0.02,
+	"research": "transportationLicenseLV1"
+}

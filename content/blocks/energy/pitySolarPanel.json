@@ -1,0 +1,13 @@
+{
+	"type": "SolarGenerator",
+	"name": "pitySolarPanel",
+	"size": 1,
+	"health": 30,
+	"description":"Plug-in attached to the factory",
+    "powerProduction":0.01,
+	"requirements": [
+		"oreCopper/30"
+	],
+	"category": "power",
+	"research":"craftLicenseLV1"
+}

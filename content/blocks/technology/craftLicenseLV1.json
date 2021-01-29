@@ -1,0 +1,12 @@
+{
+	"type": "Wall",
+	"name": "craftLicenseLV1",
+	"description": "Gives you access to the primary factory.",
+	"size": 1,
+	"health":-1,
+	"category": "defense",
+	"research":"duo",
+	"requirements": [
+		"point/0"
+	]
+}

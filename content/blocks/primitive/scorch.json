@@ -1,0 +1,7 @@
+{
+	"requirements":[
+		{"item":"cooperGear","amount":10},
+		{"item":"lead","amount":25},
+		{"item":"graphite","amount":20}
+	]
+}

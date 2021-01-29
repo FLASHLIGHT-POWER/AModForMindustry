@@ -1,0 +1,27 @@
+{
+    "ammoTypes":{
+    	"oreCopper":{
+    		"speed":2.5,
+    		"damage":5,
+    		"width":7,
+            "height":9,
+       		"lifetime":60,
+       		"shootEffect":"shootSmall",
+       		"smokeEffect":"shootSmallSmoke",
+       		"ammoMultiplier":2
+       },
+       "copper":{
+       		"width":9,
+            "height":12,
+            "reloadMultiplier":0.6,
+            "ammoMultiplier":4,
+            "lifetime":60,
+            "speed":3.5,
+            "damage":10
+       }
+    }
+    "requirements":[
+		"copper/10"
+		"copperGear/10"
+	]
+}

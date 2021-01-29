@@ -1,0 +1,11 @@
+{
+	"powerUse":6,
+	"requirements":[
+		{"item":"cooperGear","amount":10},
+		{"item":"highStrengthAlloy","amount":40},
+		{"item":"metaglass","amount":50},
+		{"item":"graphite","amount":20},
+		{"item":"thorium","amount":100},
+		{"item":"phase-fabric","amount":40}
+	]
+}

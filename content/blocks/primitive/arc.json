@@ -1,0 +1,8 @@
+{
+"range":150,
+"requirements":[
+		"lead/40",
+		"copperGear/5",
+		"silicon/10",
+	]
+}

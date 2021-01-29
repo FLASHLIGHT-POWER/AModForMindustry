@@ -1,0 +1,9 @@
+{
+	"range": 275,
+	"requirements":[
+		{"item":"cooperGear","amount":60},
+		{"item":"highStrengthAlloy","amount":300},
+		{"item":"metaglass","amount":200},
+		{"item":"thorium","amount":100}
+	]
+}

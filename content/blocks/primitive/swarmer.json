@@ -1,0 +1,8 @@
+{
+	"requirements":[
+		"structuralTitaniumAlloy/20",
+		"highStrengthAlloy/30",
+		"plastanium/45",
+		"copperGear/20"
+	]
+}

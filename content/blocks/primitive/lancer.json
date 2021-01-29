@@ -1,0 +1,9 @@
+{
+	"powerUse":1,
+	"requirements":[
+		{"item":"cooperGear","amount":20},
+		{"item":"leadedBrass","amount":30},
+		{"item":"metaglass","amount":30},
+		{"item":"silicon","amount":70}
+	]
+}
