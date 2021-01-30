@@ -9,7 +9,45 @@ const graphite = Items.graphite;
 
 const water = Liquids.water;
 const slag = Liquids.slag;
-//xvxshenhun@qq.com，使用标注来源（禁止删除注释）function defineMultiCrafter(config) {
+
+
+const oreCopper = extendContent(Item,"oreCopper",{});
+oreCopper.color = Color.valueOf("FFA500");
+
+const oreLead = extendContent(Item,"oreLead",{})
+oreLead.color = Color.valueOf("9370DB");
+
+const oreTitanium = extendContent(Item,"oreTitanium",{});
+oreTitanium.color = Color.valueOf("4169E1");
+oreTitanium.hardness = 3;
+
+const oreThorium = extendContent(Item,"oreThorium",{});
+oreThorium.color = Color.valueOf("EE82EE")
+oreThorium.hardness = 4;
+
+const point = extendContent(Item,"point",{});
+
+const copperGear = extendContent(Item,"copperGear",{});
+copperGear.description = "It is used to turret and conveyor widely.";
+
+const leadedBrass = extendContent(Item,"leadedBrass",{});
+leadedBrass.description = "It is hard."
+
+const structuralTitaniumAlloy = extendContent(Item,"structuralTitaniumAlloy",{});
+structuralTitaniumAlloy.description = "very hard."
+
+const highStrengthAlloy = extendContent(Item,"highStrengthAlloy",{});
+highStrengthAlloy.description = "error"
+
+const craftLicence = extendContent(Item,"craftLicence",{});
+craftLicence.description = "You can use it to build advanced crafter"
+
+const craftLicenceLV2 = extendContent(Item,"craftLicenceLV2",{});
+craftLicenceLV2.description = "You can use it to build more advanced crafter"
+
+//xvxshenhun@qq.com，使用标注来源（禁止删除注释）
+
+const lib = require("前置/lib");
 
 exports.defineMultiCrafter = function (originConfig) {
 
@@ -23,6 +61,24 @@ exports.defineMultiCrafter = function (originConfig) {
         return 1 - Math.pow((1 - ratio), count) + 0.00000000000000006;
     }
 
+    function defineMultipleConditionanConsumePower(list) {
+        var total = 0;
+        for (var consumeInfo of list) {
+            total += consumeInfo.usage;
+        }
+        return new JavaAdapter(ConsumePower, {
+            requestedPower(entity) {
+                var total = 0;
+                for (var consumeInfo of list) {
+                    if (consumeInfo.consume.get(entity)) {
+                        total += consumeInfo.usage;
+                    }
+                }
+                return total;
+            },
+        }, total, 0, false);
+    }
+
     function func(getter) { return new Func({ get: getter }); }
     function cons2(fun) { return new Cons2({ get: (v1, v2) => fun(v1, v2) }); }
     function randomLoop(list, func) {
@@ -34,8 +90,10 @@ exports.defineMultiCrafter = function (originConfig) {
             (v => func(v))(list[i]);
         }
     }
+    /** @type {MultiCrafterConfig} */
     const config = Object.assign({
-        unlinearEffectUp: 0,
+        noParallelAffect: true,
+        parallelEffectUp: 0,
         itemCapacity: 10,
         liquidCapacity: 10,
         updateEffectChance: 0,
@@ -51,7 +109,7 @@ exports.defineMultiCrafter = function (originConfig) {
                 throw new Error(msg(val));
             }
         }
-        check(config.unlinearEffectUp, v => v >= 0 && v <= 1, v => 'unlinearEffectUp must in [0, 1], it was ' + v);
+        check(config.parallelEffectUp, v => v >= 0 && v <= 1, v => 'parallelEffectUp must in [0, 1], it was ' + v);
         check(config.itemCapacity, v => typeof v === 'number' && v >= 0, v => 'itemCapacity must be number and greeter equals to 0, it was ' + v);
         check(config.liquidCapacity, v => typeof v === 'number' && v >= 0, v => 'liquidCapacity must be number and greeter equals to 0, it was ' + v);
         check(config.updateEffectChance, v => typeof v === 'number' && v >= 0, v => 'updateEffectChance must be number and in [0, 1], it was ' + v);
@@ -74,7 +132,12 @@ exports.defineMultiCrafter = function (originConfig) {
             check(plan.output.items, v => Array.isArray(v), v => 'plans[' + i + '].output.items must be an array, it was ' + v);
             check(plan.output.liquids, v => !v || Array.isArray(v), v => 'plans[' + i + '].output.liquids must be null or an array, it was ' + v);
             check(plan.output.power, v => !v || (typeof v === 'number' && v >= 0), v => 'plans[' + i + '].output.power must be null or a number and greeter equals to 0, it was ' + v);
-
+            if ((typeof plan.consume.power !== "number") || isNaN(plan.consume.power)) {
+                plan.consume.power = 0;
+            }
+            if ((typeof plan.output.power !== "number") || isNaN(plan.output.power)) {
+                plan.output.power = 0;
+            }
             if (plan.consume.items) {
                 for (var j = 0; j < plan.consume.items.length; j++) {
                     var itemInfo = plan.consume.items[j];
@@ -154,6 +217,10 @@ exports.defineMultiCrafter = function (originConfig) {
         }
     }
 
+    /**
+     * Init the plan obj
+     * @param {Plan} plan
+     */
     function initPlan(plan) {
         const craftEffect = plan.craftEffect;
         const craftTime = plan.craftTime;
@@ -169,8 +236,29 @@ exports.defineMultiCrafter = function (originConfig) {
             return entity.getData().planDatas[id] = data;
         }
 
+        /**
+         * If multiple plans running parallel, their efficiency reduce to 1 / numOfRunningPlan
+         *
+         * @param {Building} entity
+         * @returns {number} Efficiency
+         */
         function getMultiPlanEfficiencyAffect(entity) {
-            return 1;
+            if (config.noParallelAffect) {
+                return 1;
+            }
+            var running = 0;
+            for (var i of Object.keys(entity.getData().planDatas)) {
+                var data = entity.getData().planDatas[i];
+                if (data && data.running) {
+                    running += 1;
+                }
+            }
+
+            if (running == 0) {
+                return 1;
+            }
+            const r = 1 / running * (1 + unlinear(config.parallelEffectUp, running - 1));
+            return r;
         }
 
         function getAttributeEfficiency(entity) {
@@ -185,15 +273,59 @@ exports.defineMultiCrafter = function (originConfig) {
         }
 
         function getProgressEfficiency(entity) {
-            return entity.edelta() * getAttributeEfficiency(entity) * getMultiPlanEfficiencyAffect(entity);
+            return (plan.consume.power <= 0 ? entity.delta() : entity.edelta())
+                * getAttributeEfficiency(entity) * getMultiPlanEfficiencyAffect(entity);
         }
 
+        /** Power producing efficiency, Not affected by multiplan efficiency */
         function getPowerProgressEfficiency(entity) {
-            return entity.delta() * getAttributeEfficiency(entity) * getMultiPlanEfficiencyAffect(entity);
+            return entity.timeScale * getAttributeEfficiency(entity);
         }
 
         function getProgressAddition(entity, craftTime) {
             return 1 / craftTime * getProgressEfficiency(entity);
+        }
+
+        function canEat(entity) {
+            const data = getData(entity);
+
+            if (data.itemsEaten) { return true; }
+            const consumeItems = plan.consume.items;
+            if (!consumeItems || consumeItems.length == 0) {
+                return true;
+            }
+            const items = entity.items;
+
+            var fail = false;
+            for (var consume of consumeItems) {
+                var have = (consume => (items.has(consume.item, consume.amount)))(consume);
+                if (!have) {
+                    fail = true;
+                    break;
+                }
+            }
+            return !fail;
+        }
+
+        function canDrink(entity) {
+            const consumeLiquids = plan.consume.liquids;
+            if (!consumeLiquids || consumeLiquids.length == 0) {
+                return true;
+            }
+
+            for (var consume of consumeLiquids) {
+
+                var fls = (consume => {
+                    const liquid = consume.liquid;
+                    const use = Math.min(consume.amount * getProgressAddition(entity, craftTime), entity.block.liquidCapacity);
+                    if (entity.liquids == null || entity.liquids.get(liquid) < use) {
+                        return true;
+                    }
+                    return false;
+                })(consume);
+                if (fls) { return false; }
+            }
+            return true;
         }
 
         function eat(entity) {
@@ -208,14 +340,9 @@ exports.defineMultiCrafter = function (originConfig) {
 
             var fail = false;
             for (var consume of consumeItems) {
-                var r = (consume => {
-                    let item = consume.item;
-                    if (!items.has(item, consume.amount)) {
-                        fail = true;
-                        return fail;
-                    }
-                })(consume)
-                if (!r) {
+                var have = (consume => (items.has(consume.item, consume.amount)))(consume);
+                if (!have) {
+                    fail = true;
                     break;
                 }
             }
@@ -245,8 +372,9 @@ exports.defineMultiCrafter = function (originConfig) {
                     const liquid = consume.liquid;
                     const use = Math.min(consume.amount * getProgressAddition(entity, craftTime), entity.block.liquidCapacity);
                     if (entity.liquids == null || entity.liquids.get(liquid) < use) {
-                        return false;
+                        return true;
                     }
+                    return false;
                 })(consume);
                 if (fls) { return false; }
             }
@@ -304,13 +432,18 @@ exports.defineMultiCrafter = function (originConfig) {
             getData() { return plan; },
             update(entity) {
                 const data = getData(entity);
-                data.running = false;
+                if (isNaN(data.progress)) {
+                    print('NAN!');
+                    data.progress = 0;
+                }
 
+                // if any outputs full, don't update
                 const outputItems = plan.output.items;
                 const outputLiquids = plan.output.liquids;
                 if (outputItems) {
                     for (var item of outputItems) {
                         if (entity.items.get(item.item) >= entity.block.itemCapacity) {
+                            data.running = false;
                             return false;
                         }
                     }
@@ -318,6 +451,7 @@ exports.defineMultiCrafter = function (originConfig) {
                 if (outputLiquids) {
                     for (var liquid of outputLiquids) {
                         if (entity.liquids.get(liquid.liquid) >= (entity.block.liquidCapacity - 0.001)) {
+                            data.running = false;
                             return false;
                         }
                     }
@@ -332,6 +466,7 @@ exports.defineMultiCrafter = function (originConfig) {
                     }
                     return true;
                 } else {
+                    data.running = false;
                     return false;
                 }
             },
@@ -339,7 +474,10 @@ exports.defineMultiCrafter = function (originConfig) {
                 const data = getData(entity);
                 const running = data.running;
 
-                return (plan.consume.power && running) && entity.enabled;
+                if (!entity.enabled) {
+                    return false;
+                }
+                return plan.consume.power <= 0 || running || (canEat(entity) && canDrink(entity));
             },
             getPowerProducing(entity) {
                 const data = getData(entity);
@@ -367,13 +505,14 @@ exports.defineMultiCrafter = function (originConfig) {
 
     block = new JavaAdapter(Block, {
         init() {
-            plans.forEach(plan => {
-                const power = plan.getData().consume.power;
-                if (power) {
-                    this.consumes.powerCond(power, (p => boolf(entity => p.shouldConsumePower(entity)))(plan));
-                }
-            });
+            const powerConsume = defineMultipleConditionanConsumePower(
+                plans.map(plan => ({
+                    usage: plan.getData().consume.power,
+                    consume: boolf(entity => plan.shouldConsumePower(entity))
+                }))
+            )
             this.super$init();
+            this.consumes.add(powerConsume);
         },
         setStats() {
             this.stats.add(Stat.size, "@x@", this.size, this.size);
@@ -382,75 +521,91 @@ exports.defineMultiCrafter = function (originConfig) {
                 this.stats.add(Stat.buildTime, this.buildCost / 60, StatUnit.seconds);
                 this.stats.add(Stat.buildCost, new ItemListValue(false, this.requirements));
             }
-			
+            // this.consumes.display(this.stats);
+
+            // Note: Power stats are added by the consumers.
             if (this.hasLiquids) this.stats.add(Stat.liquidCapacity, this.liquidCapacity, StatUnit.liquidUnits);
             if (this.hasItems && this.itemCapacity > 0) this.stats.add(Stat.itemCapacity, this.itemCapacity, StatUnit.items);
 
             this.stats.add(Stat.output, new JavaAdapter(StatValue, {
                 display: (table) => {
                     table.defaults().padLeft(30).left();
+                    /*
+					table.row();
+                    if (config.noParallelAffect) {
+                        table.add(lib.getMessage('stat', 'multiCrafterNoParallelAffect'));
+                    } else {
+                        table.add(lib.getMessage('stat', 'multiCrafterHaveParallelAffect'));
+                        table.row();
+                        table.add(lib.getMessage('stat', 'multiCrafterParallelEffect', [config.parallelEffectUp]));
+                    }
+					*/
                     for (var plan of config.plans) {
                         ((plan) => {
                             table.row();
                             table.table(cons(table => {
                                 var first = true;
                                 if (plan.consume.items) for (var consume of plan.consume.items) {
-                                    if (!first) { table.add(" + ").padRight(4).center().top(); }
+                                    if (!first) { table.add(" [#66ff66]+ ").padRight(4).center().top(); }
                                     (consume => {
                                         const item = consume.item;
                                         const amount = consume.amount;
                                         table.add(amount + '').padRight(4).right().top();
                                         table.image(item.icon(Cicon.medium)).padRight(4).size(3 * 8).left().top();
+                                        // table.add(item.localizedName).padRight(4).left().top();
                                     })(consume)
                                     first = false;
                                 }
                                 if (plan.consume.liquids) for (var consume of plan.consume.liquids) {
-                                    if (!first) { table.add(" + ").padRight(4).center().top(); }
+                                    if (!first) { table.add(" [#66ff66]+ ").padRight(4).center().top(); }
                                     (consume => {
                                         const liquid = consume.liquid;
                                         const amount = consume.amount;
                                         table.add(amount + '').padRight(4).right().top();
                                         table.image(liquid.icon(Cicon.medium)).padRight(4).size(3 * 8).left().top();
+                                        // table.add(liquid.localizedName).padRight(4).left().top();
                                     })(consume);
                                     first = false;
                                 }
                                 if (plan.consume.power) {
-                                    if (!first) { table.add(" + ").padRight(4).left().top(); }
-                                    table.image(Icon.powerSmall).padRight(4).size(3 * 8).right().top();
-                                    table.add(plan.consume.power * 60 + '/s').padRight(4).left().top();
+                                    if (!first) { table.add(" [#66ff66]+ ").padRight(4).left().top(); }
+                                    table.image(lib.loadRegion('myPower')).padRight(4).size(3 * 8).right().top();
+                                    table.add(plan.consume.power * 60 + '[#66ff66]/[#66ffff]秒').padRight(4).left().top();
                                 }
-                                table.add(" --> ").padRight(4).left().top();
+                                table.add(" [#ff3333]--> ").padRight(4).left().top();
 
                                 first = true;
                                 if (plan.output.items) for (var consume of plan.output.items) {
-                                    if (!first) { table.add(" + ").padRight(4).center().top(); }
+                                    if (!first) { table.add(" [#66ff66]+ ").padRight(4).center().top(); }
                                     (consume => {
                                         const item = consume.item;
                                         const amount = consume.amount;
                                         table.add(amount + '').padRight(4).right().top();
                                         table.image(item.icon(Cicon.medium)).padRight(4).size(3 * 8).left().top();
+                                        // table.add(item.localizedName).padRight(4).left().top();
                                     })(consume)
                                     first = false;
                                 }
                                 if (plan.output.liquids) for (var consume of plan.output.liquids) {
-                                    if (!first) { table.add(" + ").padRight(4).center().top(); }
+                                    if (!first) { table.add(" [#66ff66]+ ").padRight(4).center().top(); }
                                     (consume => {
                                         const liquid = consume.liquid;
                                         const amount = consume.amount;
                                         table.add(amount + '').padRight(4).right().top();
                                         table.image(liquid.icon(Cicon.medium)).padRight(4).size(3 * 8).left().top();
+                                        // table.add(liquid.localizedName).padRight(4).left().top();
                                     })(consume)
                                     first = false;
                                 }
                                 if (plan.output.power) {
-                                    if (!first) { table.add(" + ").padRight(4).center().top(); }
-                                    table.image(Icon.powerSmall).padRight(4).size(3 * 8).left().top();
-                                    table.add(plan.output.power * 60 + '/s').padRight(4).left().top();
+                                    if (!first) { table.add(" [#66ff66]+ ").padRight(4).center().top(); }
+                                    table.image(lib.loadRegion('myPower')).padRight(4).size(3 * 8).left().top();
+                                    table.add(plan.output.power * 60 + '[#66ff66]/[#66ffff]秒').padRight(4).left().top();
                                 }
 
-                                table.add(" (").padRight(4).center().top()
+                                table.add(" [#ffff33](").padRight(4).center().top()
                                 table.add((plan.craftTime / 60).toFixed(2)).padRight(4).center().top()
-                                table.add("s)").padRight(4).center().top()
+                                table.add("[#66ffff]秒[#ffff33])").padRight(4).center().top()
                             }));
                             if (plan.attribute && plan.boostScale) {
                                 table.row();
@@ -497,6 +652,8 @@ exports.defineMultiCrafter = function (originConfig) {
                 liquids.forEach(liquid => {
                     ((liquid) => {
                         this.bars.add(liquid.name, func((e) => new Bar(
+                            // prov(() => liquid.localizedName + ": " + UI.formatAmount(e.liquids.get(liquid)) + ' / ' + UI.formatAmount(e.block.liquidapacity)),
+                            // prov(() => Color.acid),
                             liquid.localizedName,
                             liquid.barColor == null ? liquid.color : liquid.barColor,
                             floatp(() => e.liquids.get(liquid) / e.block.liquidCapacity)
@@ -545,6 +702,33 @@ exports.defineMultiCrafter = function (originConfig) {
                     this.super$draw();
                 }
             },
+            // display(table) {
+            //     // Show item count
+            //     this.super$display(table);
+            //     if (this.items != null) {
+            //         table.row();
+            //         table.left();
+            //         table.table(cons(l => {
+            //             var map = new ObjectMap();
+            //             l.update(run(() => {
+            //                 l.clearChildren();
+            //                 l.left();
+            //                 var seq = new Seq(Item);
+            //                 this.items.each(new ItemModule.ItemConsumer({
+            //                     accept(item, amount) {
+            //                         map.put(item, amount);
+            //                         seq.add(item);
+            //                     }
+            //                 }));
+            //                 map.each(cons2((item, amount) => {
+            //                     l.image(item.icon(Cicon.small)).padRight(3.0);
+            //                     l.label(prov(() => '  ' + Strings.fixed(seq.contains(item) ? amount : 0, 0))).color(Color.lightGray);
+            //                     l.row();
+            //                 }));
+            //             }));
+            //         })).left();
+            //     }
+            // },
             acceptItem(source, item) {
                 return inputItems.indexOf(item) >= 0 && this.items.get(item) < this.getMaximumAccepted(item);
             },
@@ -563,6 +747,7 @@ exports.defineMultiCrafter = function (originConfig) {
                         }
                     });
                     if (updated) {
+                        // This should be only power
                         this.consume();
                         data.warmup = Mathf.lerpDelta(data.warmup, 1, 0.02);
                         if (Mathf.chanceDelta(updateEffectChance)) {
@@ -664,5 +849,47 @@ exports.defineMultiCrafter({
     		craftEffect: Fx.none,
     		craftTime: 80,
     	},
+    ]
+});
+
+exports.defineMultiCrafter({
+    name: 'advancedRefinery',
+    itemCapacity: 30,
+    updateEffectChance: 0.05,
+    liquidCapacity: 100,
+    updateEffect: Fx.none,
+    ambientSound: Sounds.none,
+    ambientSoundVolume: 0.5,
+    plans: [
+        {
+            consume: {
+                power:1,
+                items: [
+                    { item: oreTitanium, amount: 3 },
+                    { item: pyratite, amount: 1 },
+                ]},
+            output: {
+                items: [
+                    { item: titanium, amount: 1 },
+                    { item: scrap, amount: 2 },
+                ]},
+            craftEffect: Fx.none,
+            craftTime: 120,
+        },
+        {
+            consume: {
+                power:2,
+                items: [
+                    { item: oreThorium, amount: 4 },
+                    { item: pyratite, amount: 1 },
+                ]},
+            output: {
+                items: [
+                    { item: thorium, amount: 1 },
+                    { item: scrap, amount: 3 },
+                ]},
+            craftEffect: Fx.none,
+            craftTime: 160,
+        },
     ]
 });
