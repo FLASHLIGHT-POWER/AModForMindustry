@@ -40,10 +40,40 @@ const highStrengthAlloy = extendContent(Item,"highStrengthAlloy",{});
 highStrengthAlloy.description = "error"
 
 const craftLicence = extendContent(Item,"craftLicence",{});
-craftLicence.description = "You can use it to build advanced crafter"
+craftLicence.description = " It allow you to build advanced crafter"
 
 const craftLicenceLV2 = extendContent(Item,"craftLicenceLV2",{});
-craftLicenceLV2.description = "You can use it to build more advanced crafter"
+
+const craftLicenceLV3 = extendContent(Item,"craftLicenceLV3",{});
+craftLicenceLV3.description = craftLicenceLV2.description = "It allow you to build more advanced crafter";
+
+const craftCore = extendContent(Item,"craftCore",{});
+craftCore.description = "You can use it to build advanced crafter";
+
+const craftCoreLV2 = extendContent(Item,"craftCoreLV2",{});
+
+const craftCoreLV3 = extendContent(Item,"craftCoreLV3",{});
+craftCoreLV2.description = craftCoreLV3.description = "You can use it to build more advanced crafter";
+
+const mineCore = extendContent(Item,"mineCore",{});
+const mineCoreLV2 = extendContent(Item,"mineCoreLV2",{});
+const mineCoreLV3 = extendContent(Item,"mineCoreLV3",{});
+mineCore.description = mineCoreLV2.description = mineCoreLV3.description = "You can use it to build better "
+
+const attackCore = extendContent(Item,"attackCore",{});
+const attackCoreLV2 = extendContent(Item,"attackCoreLV2",{});
+const attackCoreLV3 = extendContent(Item,"attackCoreLV3",{});
+const attackCoreLV4 = extendContent(Item,"attackCoreLV4",{});
+const attackCoreLV5 = extendContent(Item,"attackCoreLV5",{});
+attackCore.description = attackCoreLV2.description = attackCoreLV3.description = attackCoreLV4.description  = attackCoreLV5.description = "You can use it to build better unit."
+
+const effectCore = extendContent(Item,"attackCore",{});
+const effectCoreLV2 = extendContent(Item,"attackCoreLV2",{});
+const effectCoreLV3 = extendContent(Item,"attackCoreLV3",{});
+const effectCoreLV4 = extendContent(Item,"attackCoreLV4",{});
+const effectCoreLV5 = extendContent(Item,"attackCoreLV5",{});
+effectCore.description = effectCoreLV2.description = effectCoreLV3.description = effectCoreLV4.description  = effectCoreLV5.description = "You can use it to build better unit."
+
 
 //xvxshenhun@qq.com，使用标注来源（禁止删除注释）
 
